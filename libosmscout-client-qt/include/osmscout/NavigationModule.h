@@ -69,6 +69,8 @@ signals:
   void currentSpeed(double currentSpeedKmPH);
   void maxAllowedSpeed(double maxAllowedSpeedKmPh);
 
+  void breakRequest();
+
 public slots:
   void setupRoute(QtRouteData route,
                   osmscout::Vehicle vehicle);

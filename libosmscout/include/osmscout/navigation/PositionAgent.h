@@ -58,7 +58,8 @@ namespace osmscout {
       NoGpsSignal,
       OnRoute,
       OffRoute,
-      EstimateInTunnel
+      EstimateInTunnel,
+      NoRoute
     };
 
     struct OSMSCOUT_API Position {

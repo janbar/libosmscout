@@ -61,6 +61,8 @@ namespace osmscout {
         return "OffRoute";
       case EstimateInTunnel:
         return "EstimateInTunnel";
+      case NoRoute:
+        return "NoRoute";
     }
     assert(false);
     return "";
@@ -203,6 +205,14 @@ namespace osmscout {
       if (Includes(msg->data,gps.GetGeoBox())){
         this->routableObjects = msg->data;
       }
+    } else if (dynamic_cast<NoRoutableObjectsMessage*>(message.get())!=nullptr){
+      log.Warn() << "No route";
+      position.state=NoRoute;
+      position.routeNode=route->Nodes().begin(); // reset route position
+      position.coord = gps.position;
+      result.push_back(std::make_shared<PositionMessage>(now, route, position));
+      lastUpdate = now;
+      return result;
     } else if (dynamic_cast<RouteUpdateMessage*>(message.get())!=nullptr) {
       auto routeUpdateMessage = dynamic_cast<RouteUpdateMessage *>(message.get());
       route=routeUpdateMessage->routeDescription;

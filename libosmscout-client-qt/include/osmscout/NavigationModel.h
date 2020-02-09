@@ -77,6 +77,8 @@ signals:
   void currentSpeedUpdate(double currentSpeed);
   void maxAllowedSpeedUpdate(double maxAllowedSpeed);
 
+  void breakRequest();
+
 public slots:
   void locationChanged(bool locationValid,
                        double lat, double lon,
@@ -101,6 +103,8 @@ public slots:
 
   void onCurrentSpeed(double currentSpeed);
   void onMaxAllowedSpeed(double maxAllowedSpeed);
+
+  void onBreakRequest();
 
 public:
   using Roles = RouteStep::Roles;

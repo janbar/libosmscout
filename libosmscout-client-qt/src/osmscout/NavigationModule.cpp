@@ -90,6 +90,9 @@ void NavigationModule::ProcessMessages(const std::list<osmscout::NavigationMessa
       auto maxSpeedMessage = dynamic_cast<osmscout::MaxAllowedSpeedMessage *>(message.get());
       emit maxAllowedSpeed(maxSpeedMessage->maxAllowedSpeed);
     }
+    else if (dynamic_cast<BreakRequestMessage*>(message.get())!=nullptr) {
+      emit breakRequest();
+    }
   }
 }
 

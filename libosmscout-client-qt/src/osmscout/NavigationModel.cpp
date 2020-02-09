@@ -60,6 +60,10 @@ NavigationModel::NavigationModel():
   connect(navigationModule, &NavigationModule::maxAllowedSpeed,
           this, &NavigationModel::onMaxAllowedSpeed,
           Qt::QueuedConnection);
+
+  connect(navigationModule, &NavigationModule::breakRequest,
+          this, &NavigationModel::onBreakRequest,
+          Qt::QueuedConnection);
 }
 
 NavigationModel::~NavigationModel(){
@@ -145,6 +149,11 @@ void NavigationModel::onMaxAllowedSpeed(double maxAllowedSpeed)
 {
   this->maxAllowedSpeed=maxAllowedSpeed;
   emit maxAllowedSpeedUpdate(maxAllowedSpeed);
+}
+
+void NavigationModel::onBreakRequest()
+{
+  emit breakRequest();
 }
 
 QObject *NavigationModel::getNextRoutStep()
