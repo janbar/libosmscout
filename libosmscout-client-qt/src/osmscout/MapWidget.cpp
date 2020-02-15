@@ -268,7 +268,6 @@ void MapWidget::paint(QPainter *painter)
       double x;
       double y;
       projection.GeoToPixel(vehicle.position->getCoord(), x, y);
-
       Bearing iconAngle;
       if (vehicle.position->getBearing()) {
         Bearing vehicleBearing = *(vehicle.position->getBearing());
@@ -277,7 +276,7 @@ void MapWidget::paint(QPainter *painter)
       }
 
       painter->save();
-      QTransform t=QTransform::fromTranslate(x, y); // move to rotation center
+      QTransform t=QTransform::fromTranslate(x * pixelRatio, y * pixelRatio); // move to rotation center
       t.rotateRadians(iconAngle.AsRadians());
       painter->setTransform(t);
       // draw vehicleIcon center on coordinate 0x0
@@ -788,7 +787,7 @@ QImage MapWidget::loadSVGIcon(const QString &directory, const QString fileName, 
 
 void MapWidget::loadVehicleIcons()
 {
-  double iconPixelSize=getProjection().ConvertWidthToPixel(vehicle.iconSize);
+  double iconPixelSize=getProjection().ConvertWidthToPixel(vehicle.iconSize * pixelRatio);
   QString iconDirectory=OSMScoutQt::GetInstance().GetIconDirectory();
 
   vehicle.standardIcon=loadSVGIcon(iconDirectory, vehicle.standardIconFile, iconPixelSize);
@@ -856,6 +855,13 @@ bool MapWidget::toggleInfo()
     osmscout::log.Info(!osmscout::log.IsInfo());
 
     return osmscout::log.IsInfo();
+}
+
+void MapWidget::setPixelRatio(float ratio)
+{
+  pixelRatio = ratio;
+  loadVehicleIcons();
+  redraw();
 }
 
 QString MapWidget::GetRenderingType() const
