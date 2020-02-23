@@ -36,6 +36,8 @@ public:
   Optional<std::string> desc;
   std::vector<TrackSegment> segments;
 
+  Optional<std::string> displayColor;
+
   /**
    * Compute track length in meters
    * @return length

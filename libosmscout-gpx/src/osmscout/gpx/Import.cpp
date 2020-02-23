@@ -688,6 +688,37 @@ public:
   }
 };
 
+class TrkExtensionContext : public GpxParserContext {
+private:
+  Track &track;
+public:
+  TrkExtensionContext(xmlParserCtxtPtr ctxt, Track &track, GpxParser &parser) :
+      GpxParserContext(ctxt, parser), track(track) {}
+
+  ~TrkExtensionContext() override
+  {
+  }
+
+  const char *ContextName() const override
+  {
+    return "TrkExtensions";
+  }
+
+  GpxParserContext* StartElement(const std::string &name,
+                                 const std::unordered_map<std::string, std::string> &atts) override
+  {
+    if (name=="gpxx:TrackExtension"){
+      return new TrkExtensionContext(ctxt, track, parser);
+    } else if (name=="gpxx:DisplayColor"){
+      return new SimpleValueContext("DisplayColorContext", ctxt, parser, [&](const std::string &color){
+        track.displayColor=Optional<std::string>::of(color);
+      });
+    }
+
+    return nullptr; // silently ignore unknown elements
+  }
+};
+
 class TrkContext : public GpxParserContext {
 private:
   Track track;
@@ -719,6 +750,8 @@ public:
       });
     }else if (name=="trkseg"){
       return new TrkSegContext(ctxt, track, parser);
+    } else if (name=="extensions"){
+      return new TrkExtensionContext(ctxt, track, parser);
     }
 
     return nullptr; // silently ignore unknown elements
