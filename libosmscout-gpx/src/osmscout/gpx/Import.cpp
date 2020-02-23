@@ -50,7 +50,7 @@ public:
   virtual GpxParserContext* StartElement(const std::string &name,
                                          const std::unordered_map<std::string, std::string> &/*atts*/);
 
-  virtual void Characters(const std::string &/*str*/){};
+  virtual void Characters(const std::string &/*str*/){}
 };
 
 
@@ -350,12 +350,12 @@ public:
   const char *ContextName() const override
   {
     return name.c_str();
-  };
+  }
 
   void Characters(const std::string &str) override
   {
     buffer+=str;
-  };
+  }
 
 };
 
@@ -705,7 +705,7 @@ public:
   }
 
   GpxParserContext* StartElement(const std::string &name,
-                                 const std::unordered_map<std::string, std::string> &atts) override
+                                 const std::unordered_map<std::string, std::string> &/*atts*/) override
   {
     if (name=="gpxx:TrackExtension"){
       return new TrkExtensionContext(ctxt, track, parser);
@@ -735,7 +735,7 @@ public:
   const char *ContextName() const override
   {
     return "Trk";
-  };
+  }
 
   GpxParserContext* StartElement(const std::string &name,
                                  const std::unordered_map<std::string, std::string> &/*atts*/) override
