@@ -46,7 +46,7 @@ Settings::Settings(QSettings *providedStorage):
      *   242.236 - Jolla phone native
      *   130 - PC (24" FullHD)
      *   100 - Qt default (reported by SailfishOS < 2.0.1)
-     */    
+     */
     QScreen *srn=QGuiApplication::screens().at(0);
     physicalDpi = (double)srn->physicalDotsPerInch();
 }
@@ -139,7 +139,7 @@ bool Settings::loadOnlineTileProviders(QString path)
         return false;
     }
     qDebug() << "Loading online tile providers from " << loadFile.fileName();
-    
+
     QJsonDocument doc = QJsonDocument::fromJson(loadFile.readAll());
     for (auto obj: doc.array()){
         OnlineTileProvider provider = OnlineTileProvider::fromJson(obj);
@@ -152,15 +152,15 @@ bool Settings::loadOnlineTileProviders(QString path)
             }
         }
     }
-    
+
     // check if current provider is valid...
     if (!onlineProviderMap.contains(GetOnlineTileProviderId())){
         // ...if not, setup first
         if (!onlineProviders.isEmpty()){
             SetOnlineTileProviderId(onlineProviders.begin()->getId());
         }
-    }    
-    
+    }
+
     emit OnlineTileProviderIdChanged(GetOnlineTileProviderId());
     return true;
 }
@@ -173,13 +173,13 @@ bool Settings::loadMapProviders(QString path)
         return false;
     }
     qDebug() << "Loading map providers from " << loadFile.fileName();
-    
+
     QJsonDocument doc = QJsonDocument::fromJson(loadFile.readAll());
     for (auto obj: doc.array()){
         MapProvider provider = MapProvider::fromJson(obj);
         if (!provider.isValid()){
             qWarning() << "Can't parse online provider from json value" << obj;
-        }else{    
+        }else{
             mapProviders.append(provider);
         }
     }
@@ -207,7 +207,7 @@ void Settings::SetRenderSea(bool b)
   if (GetRenderSea() != b){
     storage->setValue("OSMScoutLib/Rendering/RenderSea", b);
     emit RenderSeaChanged(b);
-  }    
+  }
 }
 
 const QString Settings::GetStyleSheetDirectory() const
@@ -303,7 +303,7 @@ void Settings::SetShowAltLanguage(bool showAltLanguage)
 
 const QString Settings::GetHttpCacheDir() const
 {
-  QString cacheLocation = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);  
+  QString cacheLocation = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
   return cacheLocation + QDir::separator() + "OSMScoutHttpCache";
 }
 
@@ -353,6 +353,8 @@ QmlSettings::QmlSettings()
             this, &QmlSettings::OnlineTileProviderIdChanged);
     connect(settings.get(), &Settings::OfflineMapChanged,
             this, &QmlSettings::OfflineMapChanged);
+    connect(settings.get(), &Settings::StyleSheetFileChanged,
+            this, &QmlSettings::StyleSheetFileChanged);
     connect(settings.get(), &Settings::RenderSeaChanged,
             this, &QmlSettings::RenderSeaChanged);
     connect(settings.get(), &Settings::FontNameChanged,
@@ -417,7 +419,14 @@ void QmlSettings::SetOfflineMap(bool b)
 {
     settings->SetOfflineMap(b);
 }
-
+QString QmlSettings::GetStyleSheetFile() const
+{
+    return settings->GetStyleSheetFile();
+}
+void QmlSettings::SetStyleSheetFile(const QString file)
+{
+    settings->SetStyleSheetFile(file);
+}
 bool QmlSettings::GetRenderSea() const
 {
     return settings->GetRenderSea();
