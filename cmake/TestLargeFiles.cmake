@@ -32,8 +32,6 @@ macro(OPJ_TEST_LARGE_FILES VARIABLE)
           message(STATUS "Checking for 64-bit off_t - present")
        	endif()
 
-        # Android 32-bit ABI bugs: Never set _FILE_OFFSET_BITS=64 before API 24
-        if(NOT CMAKE_SYSTEM_NAME STREQUAL "Android" OR CMAKE_SYSTEM_VERSION GREATER 23) 
         if(NOT FILE64_OK)
             # Test with _FILE_OFFSET_BITS=64
             try_compile(FILE64_OK "${PROJECT_BINARY_DIR}"
@@ -43,7 +41,6 @@ macro(OPJ_TEST_LARGE_FILES VARIABLE)
                 message(STATUS "Checking for 64-bit off_t - present with _FILE_OFFSET_BITS=64")
                 set(_FILE_OFFSET_BITS 64)
             endif()
-        endif()
         endif()
 
         if(NOT FILE64_OK)
