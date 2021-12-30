@@ -344,6 +344,18 @@ void Settings::SetShowAltLanguage(bool showAltLanguage)
   }
 }
 
+int Settings::GetDebugLevel() const
+{
+  return storage->value("OSMScoutLib/Rendering/DebugLevel", 0).toInt();
+}
+void Settings::SetDebugLevel(int debugLevel)
+{
+  if (GetDebugLevel()!=debugLevel){
+    storage->setValue("OSMScoutLib/Rendering/DebugLevel", debugLevel);
+    emit DebugLevelChanged(debugLevel);
+  }
+}
+
 const QString Settings::GetHttpCacheDir() const
 {
   QString cacheLocation = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
@@ -503,6 +515,14 @@ bool QmlSettings::GetShowAltLanguage() const
 void QmlSettings::SetShowAltLanguage(bool showAltLanguage)
 {
     settings->SetShowAltLanguage(showAltLanguage);
+}
+int QmlSettings::GetDebugLevel() const
+{
+    return settings->GetDebugLevel();
+}
+void QmlSettings::SetDebugLevel(int debugLevel)
+{
+    settings->SetDebugLevel(debugLevel);
 }
 QString QmlSettings::GetUnits() const
 {
