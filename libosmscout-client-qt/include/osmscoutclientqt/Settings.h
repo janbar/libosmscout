@@ -67,6 +67,7 @@ class OSMSCOUT_CLIENT_QT_API Settings: public QObject
   Q_PROPERTY(QString  fontName    READ GetFontName            WRITE SetFontName     NOTIFY FontNameChanged)
   Q_PROPERTY(double   fontSize    READ GetFontSize            WRITE SetFontSize     NOTIFY FontSizeChanged)
   Q_PROPERTY(bool     showAltLanguage READ GetShowAltLanguage WRITE SetShowAltLanguage NOTIFY ShowAltLanguageChanged)
+  Q_PROPERTY(int      debugLevel  READ GetDebugLevel          WRITE SetDebugLevel   NOTIFY DebugLevelChanged)
   /// metrics or imperial
   Q_PROPERTY(QString  units       READ GetUnits               WRITE SetUnits        NOTIFY UnitsChanged)
   Q_PROPERTY(QString  voiceLookupDirectory READ GetVoiceLookupDirectory WRITE SetVoiceLookupDirectory NOTIFY VoiceLookupDirectoryChanged)
@@ -86,6 +87,7 @@ signals:
   void FontNameChanged(const QString fontName);
   void FontSizeChanged(double fontSize);
   void ShowAltLanguageChanged(bool showAltLanguage);
+  void DebugLevelChanged(int debugLevel);
   void UnitsChanged(const QString units);
 
 private:
@@ -157,6 +159,9 @@ public:
   bool GetShowAltLanguage() const;
   void SetShowAltLanguage(bool showAltLanguage);
 
+  int GetDebugLevel() const;
+  void SetDebugLevel(int debug);
+
   const QString GetHttpCacheDir() const;
 
   const QByteArray GetCookieData() const;
@@ -202,6 +207,7 @@ class OSMSCOUT_CLIENT_QT_API QmlSettings: public QObject{
   Q_PROPERTY(QString  fontName    READ GetFontName            WRITE SetFontName     NOTIFY FontNameChanged)
   Q_PROPERTY(double   fontSize    READ GetFontSize            WRITE SetFontSize     NOTIFY FontSizeChanged)
   Q_PROPERTY(bool     showAltLanguage READ GetShowAltLanguage WRITE SetShowAltLanguage NOTIFY ShowAltLanguageChanged)
+  Q_PROPERTY(int      debugLevel  READ GetDebugLevel          WRITE SetDebugLevel   NOTIFY DebugLevelChanged)
   /// metrics or imperial
   Q_PROPERTY(QString  units       READ GetUnits               WRITE SetUnits        NOTIFY UnitsChanged)
 
@@ -218,6 +224,7 @@ signals:
   void FontNameChanged(const QString fontName);
   void FontSizeChanged(double fontSize);
   void ShowAltLanguageChanged(bool showAltLanguage);
+  void DebugLevelChanged(int debugLevel);
   void UnitsChanged(const QString units);
 
 public:
@@ -255,6 +262,9 @@ public:
 
   bool GetShowAltLanguage() const;
   void SetShowAltLanguage(bool showAltLanguage);
+
+  int GetDebugLevel() const;
+  void SetDebugLevel(int debugLevel);
 
   QString GetUnits() const;
   void SetUnits(const QString units);
