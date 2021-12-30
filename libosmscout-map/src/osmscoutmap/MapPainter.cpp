@@ -301,12 +301,12 @@ constexpr bool debugGroundTiles = false;
       if (type) {
         if (parameter.GetWarningObjectCountLimit()>0 &&
             statistic.objectCount>parameter.GetWarningObjectCountLimit()) {
-          log.Warn() << "Type : " << type->GetName() << " has " << statistic.objectCount << " objects (performance limit: " << parameter.GetWarningObjectCountLimit() << ")";
+          log.Debug() << "Type : " << type->GetName() << " has " << statistic.objectCount << " objects (performance limit: " << parameter.GetWarningObjectCountLimit() << ")";
         }
 
         if (parameter.GetWarningCoordCountLimit()>0 &&
             statistic.coordCount>parameter.GetWarningCoordCountLimit()) {
-          log.Warn() << "Type : " << type->GetName() << " has " << statistic.coordCount << " coords (performance limit: " << parameter.GetWarningCoordCountLimit() << ")";
+          log.Debug() << "Type : " << type->GetName() << " has " << statistic.coordCount << " coords (performance limit: " << parameter.GetWarningCoordCountLimit() << ")";
         }
       }
     }
