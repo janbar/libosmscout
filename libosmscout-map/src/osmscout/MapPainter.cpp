@@ -371,12 +371,12 @@ namespace osmscout {
       if (entry.first) {
         if (parameter.GetWarningObjectCountLimit()>0 &&
           entry.second.objectCount>parameter.GetWarningObjectCountLimit()) {
-          log.Warn() << "Type : " << entry.first->GetName() << " has " << entry.second.objectCount << " objects (performance limit: " << parameter.GetWarningObjectCountLimit() << ")";
+          log.Debug() << "Type : " << entry.first->GetName() << " has " << entry.second.objectCount << " objects (performance limit: " << parameter.GetWarningObjectCountLimit() << ")";
         }
 
         if (parameter.GetWarningCoordCountLimit()>0 &&
             entry.second.coordCount>parameter.GetWarningCoordCountLimit()) {
-          log.Warn() << "Type : " << entry.first->GetName() << " has " << entry.second.coordCount << " coords (performance limit: " << parameter.GetWarningCoordCountLimit() << ")";
+          log.Debug() << "Type : " << entry.first->GetName() << " has " << entry.second.coordCount << " coords (performance limit: " << parameter.GetWarningCoordCountLimit() << ")";
         }
 
       }

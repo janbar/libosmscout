@@ -397,13 +397,13 @@ namespace osmscout {
 
     size_t hitRate=inBoxCount*100/size;
     if (size>100 && hitRate<50) {
-      log.Warn() << "Bounding box hit rate for file " << datafile << " is only " << hitRate << "% (" << inBoxCount << "/" << size << ")";
+      log.Debug() << "Bounding box hit rate for file " << datafile << " is only " << hitRate << "% (" << inBoxCount << "/" << size << ")";
       /*
       for (const auto& missRateType: missRateTypes) {
-        log.Warn() << "- " << missRateType.first << " " << missRateType.second;
+        log.Debug() << "- " << missRateType.first << " " << missRateType.second;
       }
       for (const auto& hitRateType: hitRateTypes) {
-        log.Warn() << "+ " << hitRateType.first << " " << hitRateType.second;
+        log.Debug() << "+ " << hitRateType.first << " " << hitRateType.second;
       }*/
     }
 
