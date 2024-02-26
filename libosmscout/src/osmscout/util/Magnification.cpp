@@ -51,7 +51,7 @@ namespace osmscout {
 
   void Magnification::SetLevel(const MagnificationLevel& level)
   {
-    this->magnification=pow(2.0,level.Get());
+    this->magnification=pow(2.0,int(level.Get()));
     this->level=level.Get();
   }
 

@@ -817,7 +817,7 @@ constexpr bool debugGroundTiles = false;
         size_t countSymbols=std::max(size_t(1), size_t((length - symbolSpace) / (symbolWidth + symbolSpace)));
         size_t labelCountExp=log2(countSymbols);
 
-        countSymbols=::pow(2, labelCountExp);
+        countSymbols=::pow(2.0, double(labelCountExp));
 
         double space = (length-countSymbols*symbolWidth) / (countSymbols+1);
         assert(space>0);

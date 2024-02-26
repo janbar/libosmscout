@@ -2793,8 +2793,8 @@ namespace osmscout {
 
       progress.SetAction("Index regions");
 
-      locidx::RegionIndex regionIndex(360.0/pow(2.0,REGION_INDEX_LEVEL),
-                                      180.0/pow(2.0,REGION_INDEX_LEVEL));
+      locidx::RegionIndex regionIndex(360.0/pow(2.0,int(REGION_INDEX_LEVEL)),
+                                      180.0/pow(2.0,int(REGION_INDEX_LEVEL)));
 
       regionIndex.IndexRegions(regionTree);
 

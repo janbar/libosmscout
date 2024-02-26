@@ -281,7 +281,7 @@ bool PlaneMapRenderer::RenderMap(QPainter& painter,
 double PlaneMapRenderer::computeScale(const osmscout::MercatorProjection &previousProjection,
                                       const osmscout::MercatorProjection &currentProjection)
 {
-  double currentDiagonal=sqrt(pow(currentProjection.GetWidth(),2) + pow(currentProjection.GetHeight(),2));
+  double currentDiagonal=sqrt(pow(double(currentProjection.GetWidth()),2) + pow(double(currentProjection.GetHeight()),2));
 
   osmscout::GeoCoord topLeft;
   currentProjection.PixelToGeo(0,0,topLeft);

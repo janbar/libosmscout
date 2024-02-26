@@ -200,7 +200,7 @@ namespace osmscout {
       log.Debug() << "Height at " << coord.GetDisplayText() << " " << fracLat << "x" << fracLon << " with tile coords " << col << "," << row << " = " << h1;
 
 #ifndef SRTM_BILINEAR_INTERPOLATION
-      return (int32_t) floor(h1);
+      return h1;
 #else
       // TODO: Hmmm, is the right interpolation box? Have to look again at the original sources!
       int h2 = GetHeight(col+1,row);
