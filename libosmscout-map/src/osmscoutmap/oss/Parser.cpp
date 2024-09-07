@@ -758,6 +758,7 @@ void Parser::WIDTHCONSTDEF() {
 		StyleConstantRef         constant;
 		double                   width;
 		std::string              unitValue;
+		StyleConstantWidth::Unit unit=StyleConstantWidth::Unit::mm;
 		
 		Expect(35 /* "WIDTH" */);
 		IDENT(name);
@@ -782,14 +783,18 @@ void Parser::WIDTHCONSTDEF() {
 		 }
 		 else {
 		   if (unitValue=="mm") {
-		     config.AddConstant(name,std::make_shared<StyleConstantWidth>(width,StyleConstantWidth::Unit::mm));
+		     unit=StyleConstantWidth::Unit::mm;
 		   }
 		   else if (unitValue=="m") {
-		     config.AddConstant(name,std::make_shared<StyleConstantWidth>(width,StyleConstantWidth::Unit::m));
+		     unit=StyleConstantWidth::Unit::m;
 		   }
 		   else {
 		     std::string e="Unsupported unit '"+unitValue+"'";
 		     SemErr(e.c_str());
+		   }
+		
+		   if (!errors->hasErrors) {
+		     config.AddConstant(name,std::make_shared<StyleConstantWidth>(width,unit));
 		   }
 		 }
 		}
@@ -1872,33 +1877,36 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		     }
 		   }
 		
-		   if (!errors->hasErrors) {
-		     if (!function.empty()) {
-		       if (factor<0.0 || factor>1.0) {
-		         std::string e="Factor must be in the range [0..1]";
+		   if (!function.empty()) {
+		     if (factor<0.0 || factor>1.0) {
+		       std::string e="Factor must be in the range [0..1]";
 		
-		         SemErr(e.c_str());
+		       SemErr(e.c_str());
+		     }
+		
+		     if (function=="lighten") {
+		       if (!errors->hasErrors) {
+		         style.SetColorValue(descriptor.GetAttribute(),color.Lighten(factor));
 		       }
-		       else {
-		         if (function=="lighten") {
-		           style.SetColorValue(descriptor.GetAttribute(),color.Lighten(factor));
-		         }
-		         else if (function=="darken") {
-		           style.SetColorValue(descriptor.GetAttribute(),color.Darken(factor));
-		         }
-		         else if (function=="alpha") {
-		           style.SetColorValue(descriptor.GetAttribute(),color.Alpha(factor));
-		         }
-		         else {
-		           std::string e="Unknown color function '"+function+"'";
-		
-		           SemErr(e.c_str());
-		         }
+		     }
+		     else if (function=="darken") {
+		       if (!errors->hasErrors) {
+		         style.SetColorValue(descriptor.GetAttribute(),color.Darken(factor));
+		       }
+		     }
+		     else if (function=="alpha") {
+		       if (!errors->hasErrors) {
+		         style.SetColorValue(descriptor.GetAttribute(),color.Alpha(factor));
 		       }
 		     }
 		     else {
-		       style.SetColorValue(descriptor.GetAttribute(),color);
+		       std::string e="Unknown color function '"+function+"'";
+		
+		       SemErr(e.c_str());
 		     }
+		   }
+		   else {
+		     style.SetColorValue(descriptor.GetAttribute(),color);
 		   }
 		 }
 		 else if (valueType==ValueType::CONSTANT) {
@@ -2001,12 +2009,14 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!StringToNumber(number,value)) {
+		
+		   if (!StringToNumber(number,value)) {
 		     std::string e="Cannot parse number '"+number+"'";
 		
 		     SemErr(e.c_str());
 		   }
-		   else {
+		
+		   if (!errors->hasErrors) {
 		     if (negate) {
 		       value=-value;
 		     }
@@ -2028,12 +2038,14 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!StringToNumber(number,value)) {
+		
+		   if (!StringToNumber(number,value)) {
 		     std::string e="Cannot parse number '"+number+"'";
 		
 		     SemErr(e.c_str());
 		   }
-		   else {
+		
+		   if (!errors->hasErrors) {
 		     style.SetDoubleValue(descriptor.GetAttribute(),value);
 		   }
 		 }
@@ -2052,7 +2064,8 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		
 		     SemErr(e.c_str());
 		   }
-		   else {
+		
+		   if (!errors->hasErrors) {
 		     if (negate) {
 		       value=-value;
 		     }
@@ -2097,12 +2110,14 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!StringToNumber(number,value)) {
+		
+		   if (!StringToNumber(number,value)) {
 		     std::string e="Cannot parse number '"+number+"'";
 		
 		     SemErr(e.c_str());
 		   }
-		   else {
+		
+		   if (!errors->hasErrors) {
 		     style.SetDoubleValue(descriptor.GetAttribute(),value);
 		   }
 		 }
@@ -2144,12 +2159,14 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!StringToNumber(number,value)) {
+		
+		   if (!StringToNumber(number,value)) {
 		     std::string e="Cannot parse number '"+number+"'";
 		
 		     SemErr(e.c_str());
 		   }
-		   else {
+		
+		   if (!errors->hasErrors) {
 		     if (negate) {
 		       value=-value;
 		     }
@@ -2166,17 +2183,20 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!unit.empty()) {
+		
+		   if (!unit.empty()) {
 		     std::string e="Value must not have unit";
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!StringToNumber(number,value)) {
+		
+		   if (!StringToNumber(number,value)) {
 		     std::string e="Cannot parse number '"+number+"'";
 		
 		     SemErr(e.c_str());
 		   }
-		   else {
+		
+		   if (!errors->hasErrors) {
 		     style.SetDoubleValue(descriptor.GetAttribute(),value);
 		   }
 		 }
@@ -2192,35 +2212,33 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!unit.empty()) {
+		
+		   if (!unit.empty()) {
 		     std::string e="Value must not have unit";
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!StringToNumber(number,value)) {
+		
+		   if (!StringToNumber(number,value)) {
 		     std::string e="Cannot parse number '"+number+"'";
 		
 		     SemErr(e.c_str());
 		   }
-		   else {
+		
+		   valueList.push_back(value);
+		
+		   for (const auto& number : numberList) {
+		     if (!StringToNumber(number,value)) {
+		       std::string e="Cannot parse number '"+number+"'";
+		
+		       SemErr(e.c_str());
+		     }
+		
 		     valueList.push_back(value);
+		   }
 		
-		     bool invalid = false;
-		     for (const auto& number : numberList) {
-		       if (!StringToNumber(number,value)) {
-		         std::string e="Cannot parse number '"+number+"'";
-		
-		         SemErr(e.c_str());
-		         invalid = true;
-		       }
-		       else {
-		         valueList.push_back(value);
-		       }
-		     }
-		
-		     if (!invalid) {
-		       style.SetDoubleArrayValue(descriptor.GetAttribute(),valueList);
-		     }
+		   if (!errors->hasErrors) {
+		     style.SetDoubleArrayValue(descriptor.GetAttribute(),valueList);
 		   }
 		 }
 		}
@@ -2308,7 +2326,8 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		
 		     SemErr(e.c_str());
 		   }
-		   else {
+		
+		   if (!errors->hasErrors) {
 		     if (negate) {
 		       value=-value;
 		     }
@@ -2346,17 +2365,20 @@ void Parser::ATTRIBUTEVALUE(PartialStyleBase& style, const StyleAttributeDescrip
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!unit.empty()) {
+		
+		   if (!unit.empty()) {
 		     std::string e="Vaue must not have a unit";
 		
 		     SemErr(e.c_str());
 		   }
-		   else if (!StringToNumber(number,value)) {
+		
+		   if (!StringToNumber(number,value)) {
 		     std::string e="Cannot parse number '"+number+"'";
 		
 		     SemErr(e.c_str());
 		   }
-		   else {
+		
+		   if (!errors->hasErrors) {
 		     style.SetUIntValue(descriptor.GetAttribute(),value);
 		   }
 		 }
@@ -2395,7 +2417,8 @@ void Parser::COLOR_VALUE(Color& color) {
 		
 		 SemErr(e.c_str());
 		}
-		else {
+		
+		if (!errors->hasErrors) {
 		 color=PostprocessColor(osmscout::Color::FromHexString(c));
 		}
 		
