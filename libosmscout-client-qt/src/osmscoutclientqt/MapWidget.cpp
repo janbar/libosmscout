@@ -27,6 +27,8 @@
 #include <QtSvg/QSvgRenderer>
 #include <QtGlobal>
 #include <QQuickWindow>
+#include <QSGSimpleTextureNode>
+#include <QSGFlatColorMaterial>
 
 namespace osmscout {
 
@@ -384,6 +386,73 @@ void MapWidget::paint(QPainter *painter)
             }
         }
     }
+}
+
+QSGNode *MapWidget::updatePaintNode(QSGNode * oldNode, UpdatePaintNodeData * updatePaintNodeData)
+{
+    auto node = dynamic_cast<QSGSimpleTextureNode *>(oldNode);
+
+    if (!node) {
+        node = new QSGSimpleTextureNode();
+    }
+
+    osmscout::MercatorProjection projection = getProjection();
+    if (!projection.IsValid()){
+      qWarning() << "Projection is not valid!";
+      return node;
+    }
+    bool animationInProgress = inputHandler->animationInProgress();
+
+    MapViewStruct request=GetViewStruct();
+    QRectF boundingBox = contentsBoundingRect();
+
+    bool oldFinished = finished;
+    assert(renderer);
+    finished = renderer->RenderMap(*this, *node,request);
+    if (oldFinished != finished){
+      emit finishedChanged(finished);
+    }
+
+    // QSGTexture *texture = window()->createTextureFromImage(*image, QQuickWindow::TextureIsOpaque);
+    // node->setOwnsTexture(true);
+    // node->setRect(boundingRect());
+    // node->markDirty(QSGNode::DirtyForceUpdate);
+    // node->setTexture(texture);
+    return node;
+
+  // if (!oldNode) {
+  //   oldNode = new QSGNode;
+  // }
+
+  // oldNode->removeAllChildNodes();
+  // QList<QLine> m_lines;
+  // for (int i = 0; i < 20; ++i) {
+  //   m_lines << QLine(0,10*i,200,10*i);
+  // }
+
+  // for (const QLine& line: m_lines) {
+
+  //   auto childNode = new QSGGeometryNode;
+
+  //   auto geometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), 2);
+  //   geometry->setLineWidth(2);
+  //   geometry->setDrawingMode(QSGGeometry::DrawLineStrip);
+  //   childNode->setGeometry(geometry);
+  //   childNode->setFlag(QSGNode::OwnsGeometry);
+
+  //   auto material = new QSGFlatColorMaterial;
+  //   material->setColor(QColor(255, 0, 0));
+  //   childNode->setMaterial(material);
+  //   childNode->setFlag(QSGNode::OwnsMaterial);
+
+  //   QSGGeometry::Point2D *vertices = geometry->vertexDataAsPoint2D();
+
+  //   vertices[0].set(line.x1(), line.y1());
+  //   vertices[1].set(line.x2(), line.y2());
+
+  //   oldNode->appendChildNode(childNode);
+  // }
+  //return oldNode;
 }
 
 void MapWidget::recenter()

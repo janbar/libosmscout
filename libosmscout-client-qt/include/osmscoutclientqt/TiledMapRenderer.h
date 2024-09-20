@@ -129,6 +129,10 @@ public:
    */
   virtual bool RenderMap(QPainter& painter,
                          const MapViewStruct& request);
+
+  virtual bool RenderMap(QQuickItem& item,
+                         QSGSimpleTextureNode& node,
+                         const MapViewStruct& request) { return true; }
 };
 
 }

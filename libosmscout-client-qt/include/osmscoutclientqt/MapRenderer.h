@@ -33,6 +33,8 @@
 #include <QSettings>
 #include <QMutex>
 #include <QPainter>
+#include <QQuickItem>
+#include <QSGSimpleTextureNode>
 
 namespace osmscout {
 
@@ -197,6 +199,10 @@ public:
    * @return true if rendered map is complete
    */
   virtual bool RenderMap(QPainter& painter,
+                         const MapViewStruct& request) = 0;
+
+  virtual bool RenderMap(QQuickItem& item,
+                         QSGSimpleTextureNode& node,
                          const MapViewStruct& request) = 0;
 
   void addOverlayObject(int id, const OverlayObjectRef& obj);

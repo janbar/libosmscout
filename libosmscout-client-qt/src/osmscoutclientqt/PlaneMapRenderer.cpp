@@ -278,6 +278,165 @@ bool PlaneMapRenderer::RenderMap(QPainter& painter,
   return needsNoRepaint;
 }
 
+bool PlaneMapRenderer::RenderMap(QQuickItem& item, QSGSimpleTextureNode& node, const MapViewStruct &request) {
+  //qDebug() << "RenderMap()";
+  QMutexLocker locker(&finishedMutex);
+
+  osmscout::Color backgroundColor;
+  if (finishedUnknownFillStyle) {
+    backgroundColor=finishedUnknownFillStyle->GetFillColor();
+  } else {
+    backgroundColor=osmscout::Color(0,0,0);
+  }
+
+  if (finishedImage==nullptr) {
+    // painter.fillRect(0,
+    //                  0,
+    //                  request.width,
+    //                  request.height,
+    //                  QColor::fromRgbF(backgroundColor.GetR(),
+    //                                   backgroundColor.GetG(),
+    //                                   backgroundColor.GetB(),
+    //                                   backgroundColor.GetA()));
+
+    //RenderMessage(painter,request.width,request.height,"no image rendered (internal error?)");
+
+    // Since we assume that this is just a temporary problem, or we just were not instructed to render
+    // a map yet, we trigger rendering an image...
+    {
+      QMutexLocker reqLocker(&lastRequestMutex);
+      lastRequest=request;
+    }
+    emit TriggerMapRenderingSignal(request, epoch);
+    return false;
+  }
+
+  osmscout::MercatorProjection requestProjection;
+
+  if (!requestProjection.Set(request.coord,
+                             request.angle.AsRadians(),
+                             request.magnification,
+                             mapDpi,
+                             request.width,
+                             request.height)) {
+    osmscout::log.Warn() << "Invalid request projection!";
+    return false;
+  }
+
+  osmscout::MercatorProjection finalImgProjection;
+
+  if (!finalImgProjection.Set(finishedCoord,
+                              finishedAngle,
+                              finishedMagnification,
+                              mapDpi,
+                              finishedImage->width(),
+                              finishedImage->height())) {
+    osmscout::log.Warn() << "Invalid finished projection!";
+    return false;
+  }
+
+  // projection bounding box may be smaller than projection dimensions...
+  double scale=computeScale(finalImgProjection,requestProjection);
+
+  QRectF sourceRectangle(0,
+                         0,
+                         finalImgProjection.GetWidth(),
+                         finalImgProjection.GetHeight());
+
+  osmscout::Vertex2D targetCenter;
+
+  osmscout::GeoCoord srcImageCenterCoord;
+  finalImgProjection.PixelToGeo(finalImgProjection.GetWidth()/2,
+                                finalImgProjection.GetHeight()/2,
+                                srcImageCenterCoord);
+
+  requestProjection.GeoToPixel(srcImageCenterCoord,
+                               targetCenter);
+  double targetTopLeftX=targetCenter.GetX() - finalImgProjection.GetWidth()*scale*0.5;
+  double targetTopLeftY=targetCenter.GetY() - finalImgProjection.GetHeight()*scale*0.5;
+
+  QRectF targetRectangle(targetTopLeftX,
+                         targetTopLeftY,
+                         finalImgProjection.GetWidth()*scale,
+                         finalImgProjection.GetHeight()*scale);
+
+
+  // check if transformed final img cover current canvas...
+  if (finalImgProjection.GetAngle()!=requestProjection.GetAngle() ||
+      targetRectangle.top()>0 || targetRectangle.left()>0 ||
+      targetRectangle.bottom()<requestProjection.GetHeight() || targetRectangle.right()<requestProjection.GetWidth()) {
+    // ...if not, there is necessary to draw some background
+
+    // painter.fillRect(0,
+    //                  0,
+    //                  request.width,
+    //                  request.height,
+    //                  QColor::fromRgbF(backgroundColor.GetR(),
+    //                                   backgroundColor.GetG(),
+    //                                   backgroundColor.GetB(),
+    //                                   backgroundColor.GetA()));
+  }
+
+//  painter.save();
+  if (finalImgProjection.GetAngle()!=requestProjection.GetAngle()){
+    // rotate final image
+    QPointF rotationCenter(targetRectangle.x()+targetRectangle.width()/2.0,
+                           targetRectangle.y()+targetRectangle.height()/2.0);
+
+    // painter.translate(rotationCenter);
+    // painter.rotate(qRadiansToDegrees(requestProjection.GetAngle()-finalImgProjection.GetAngle()));
+    // painter.translate(rotationCenter*-1.0);
+  }
+
+  // After our computations with float numbers, target rectangle is not aligned to pixel.
+  // It leads to additional anti-aliasing that blurs output...
+  double absDiff=std::abs((targetRectangle.x()-targetTopLeftX) - sourceRectangle.x()) +
+                   std::abs((targetRectangle.y()-targetTopLeftY) - sourceRectangle.y()) +
+                   std::abs(targetRectangle.width()              - sourceRectangle.width()) +
+                   std::abs(targetRectangle.height()             - sourceRectangle.height());
+
+  // ...for that reason, when rectangles are (almost) the same,
+  // round target position to get better output
+  if (absDiff < 1e-3 && finalImgProjection.GetAngle()==requestProjection.GetAngle()){
+    targetRectangle.setX(sourceRectangle.x() + round(targetTopLeftX));
+    targetRectangle.setY(sourceRectangle.y() + round(targetTopLeftY));
+    targetRectangle.setSize(sourceRectangle.size());
+  }
+
+  // painter.drawImage(targetRectangle,
+  //                   *finishedImage,
+  //                   sourceRectangle);
+
+  qWarning("### beg %s : %ld", __FUNCTION__, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()));
+  QSGTexture *texture = item.window()->createTextureFromImage(*finishedImage, QQuickWindow::TextureIsOpaque);
+  node.setOwnsTexture(true);
+  node.setRect(item.boundingRect());
+  node.markDirty(QSGNode::DirtyForceUpdate);
+  node.setTexture(texture);
+  qWarning("### end %s : %ld", __FUNCTION__, std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()));
+
+  MapViewStruct extendedRequest=request;
+  extendedRequest.width*=canvasOverrun;
+  extendedRequest.height*=canvasOverrun;
+  bool needsNoRepaint=finishedImage->width()==(int) extendedRequest.width &&
+                        finishedImage->height()==(int) extendedRequest.height &&
+                        finishedCoord==request.coord &&
+                        finishedAngle==request.angle.AsRadians() &&
+                        finishedMagnification==request.magnification &&
+                        finishedEpoch==epoch;
+
+  if (!needsNoRepaint){
+    {
+      QMutexLocker reqLocker(&lastRequestMutex);
+      lastRequest=extendedRequest;
+    }
+    emit TriggerMapRenderingSignal(extendedRequest, epoch);
+  }
+
+  // painter.restore();
+  return needsNoRepaint;
+}
+
 double PlaneMapRenderer::computeScale(const osmscout::MercatorProjection &previousProjection,
                                       const osmscout::MercatorProjection &currentProjection)
 {

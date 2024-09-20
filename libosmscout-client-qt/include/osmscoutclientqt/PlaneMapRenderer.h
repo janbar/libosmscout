@@ -109,6 +109,10 @@ public:
   virtual bool RenderMap(QPainter& painter,
                          const MapViewStruct& request);
 
+  virtual bool RenderMap(QQuickItem& item,
+                         QSGSimpleTextureNode& node,
+                         const MapViewStruct& request);
+
 private:
   double computeScale(const osmscout::MercatorProjection &previousProjection,
                       const osmscout::MercatorProjection &currentProjection);

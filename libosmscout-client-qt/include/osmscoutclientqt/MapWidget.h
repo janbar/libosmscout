@@ -506,6 +506,7 @@ public:
   void hoverMoveEvent(QHoverEvent* event) override;
 
   void paint(QPainter *painter) override;
+  QSGNode *updatePaintNode(QSGNode* oldNode, UpdatePaintNodeData*) override;
 
   bool stylesheetHasErrors() const;
   int firstStylesheetErrorLine() const;
