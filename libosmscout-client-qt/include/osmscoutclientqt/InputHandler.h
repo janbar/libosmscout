@@ -285,11 +285,20 @@ public:
     virtual bool focusOutEvent(QFocusEvent *event);
     virtual void widgetResized(const QSizeF &widgetSize);
 
+    enum FrameRate {
+      FrameRateLow    = 0,
+      FrameRateMedium = 1,
+      FrameRateHigh   = 2,
+    };
+
+    void setAnimationFameRate(FrameRate rate);
+
 signals:
     void viewChanged(const MapView &view);
 
 protected:
     MapView view;
+    int animationTick;
 };
 
 /**
@@ -314,7 +323,6 @@ private:
     const int MOVE_ANIMATION_DURATION = 1000; // ms
     const int ZOOM_ANIMATION_DURATION = 500; // ms
     const int ROTATE_ANIMATION_DURATION = 1000; //ms
-    const int ANIMATION_TICK = 16;
 
 private slots:
     void onTimeout();
@@ -385,7 +393,6 @@ private:
     double zoomAnimationDuration;
 
     static constexpr int ANIMATION_DURATION = 1000; // ms
-    static constexpr int ANIMATION_TICK = 16; // ms
 
 private slots:
     void onTimeout();

@@ -157,6 +157,7 @@ void MapWidget::setupInputHandler(InputHandler *newGesture)
         inputHandler->deleteLater();
     }
     inputHandler = newGesture;
+    inputHandler->setAnimationFameRate(animationFrameRate);
 
     connect(inputHandler, &InputHandler::viewChanged,
             this, &MapWidget::changeView);
@@ -170,6 +171,11 @@ void MapWidget::setupInputHandler(InputHandler *newGesture)
 void MapWidget::redraw()
 {
     update();
+}
+
+void MapWidget::setAnimationFrameRate(InputHandler::FrameRate rate)
+{
+  animationFrameRate = rate;
 }
 
 void MapWidget::changeView(const MapView &updated)

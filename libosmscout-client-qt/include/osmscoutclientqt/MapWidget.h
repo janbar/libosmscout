@@ -161,6 +161,8 @@ private:
 
   float vehicleScaleFactor{1.0};
 
+  InputHandler::FrameRate animationFrameRate{InputHandler::FrameRateHigh};
+
 signals:
   void viewChanged();
   void latChanged();
@@ -192,6 +194,7 @@ signals:
 public slots:
   void changeView(const MapView &view);
   void redraw();
+  void setAnimationFrameRate(InputHandler::FrameRate rate);
 
   void recenter();
 

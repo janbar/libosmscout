@@ -187,6 +187,7 @@ QVector2D MoveAccumulator::collect()
 
 InputHandler::InputHandler(const MapView &view): view(view)
 {
+    setAnimationFameRate(FrameRateHigh);
 }
 
 void InputHandler::painted()
@@ -250,6 +251,20 @@ void InputHandler::widgetResized(const QSizeF &/*widgetSize*/)
 {
   // no code
 }
+void InputHandler::setAnimationFameRate(FrameRate rate)
+{
+    switch(rate) {
+    case FrameRateLow:
+        animationTick = 1000/15;
+        break;
+    case FrameRateMedium:
+        animationTick = 1000/30;
+        break;
+    default:
+        animationTick = 1000/60;
+        break;
+    }
+}
 
 MoveHandler::MoveHandler(const MapView &view): InputHandler(view)
 {
@@ -270,7 +285,7 @@ bool MoveHandler::touch(const QTouchEvent &event)
 
 void MoveHandler::onTimeout()
 {
-    double progress = (double)(animationStart.elapsed() + ANIMATION_TICK) / (double)animationDuration;
+    double progress = (double)(animationStart.elapsed() + animationTick) / (double)animationDuration;
     if (progress >= 1){
         progress = 1.0;
         timer.stop();
@@ -369,7 +384,7 @@ bool MoveHandler::zoom(double zoomFactor, const QPoint &widgetPosition, const QR
     linearProgression = false;
     animationDuration = ZOOM_ANIMATION_DURATION;
     animationStart.restart();
-    timer.setInterval(ANIMATION_TICK);
+    timer.setInterval(animationTick);
     timer.start();
     onTimeout();
 
@@ -388,7 +403,7 @@ bool MoveHandler::move(const QVector2D &move)
     linearProgression = false;
     animationDuration = MOVE_ANIMATION_DURATION;
     animationStart.restart();
-    timer.setInterval(ANIMATION_TICK);
+    timer.setInterval(animationTick);
     timer.start();
     onTimeout();
 
@@ -441,7 +456,7 @@ bool MoveHandler::rotateTo(double angle)
     linearProgression = false;
     animationDuration = ROTATE_ANIMATION_DURATION;
     animationStart.restart();
-    timer.setInterval(ANIMATION_TICK);
+    timer.setInterval(animationTick);
     timer.start();
     onTimeout();
 
@@ -462,7 +477,7 @@ bool MoveHandler::rotateBy(double angleChange)
     linearProgression = false;
     animationDuration = ROTATE_ANIMATION_DURATION;
     animationStart.restart();
-    timer.setInterval(ANIMATION_TICK);
+    timer.setInterval(animationTick);
     timer.start();
     onTimeout();
 
@@ -482,7 +497,7 @@ bool MoveHandler::pivotBy(double angleChange)
   linearProgression = true;
   animationDuration = ROTATE_ANIMATION_DURATION;
   animationStart.restart();
-  timer.setInterval(ANIMATION_TICK);
+  timer.setInterval(animationTick);
   timer.start();
   onTimeout();
 
@@ -544,8 +559,8 @@ JumpHandler::JumpHandler(const MapView &view,
 
 void JumpHandler::onTimeout()
 {
-    double progress = (double)(animationStart.elapsed() + ANIMATION_TICK) / moveAnimationDuration;
-    double zoomProgress = (double)(animationStart.elapsed() + ANIMATION_TICK) / zoomAnimationDuration;
+    double progress = (double)(animationStart.elapsed() + animationTick) / moveAnimationDuration;
+    double zoomProgress = (double)(animationStart.elapsed() + animationTick) / zoomAnimationDuration;
     if (progress >= 1){
       progress = 1;
     }
@@ -593,7 +608,7 @@ bool JumpHandler::showCoordinates(const osmscout::GeoCoord &coord, const osmscou
     }
 
     animationStart.restart();
-    timer.setInterval(ANIMATION_TICK);
+    timer.setInterval(animationTick);
     timer.start();
     onTimeout();
 
