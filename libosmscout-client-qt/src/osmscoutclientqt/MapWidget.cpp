@@ -286,11 +286,11 @@ void MapWidget::paint(QPainter *painter)
       qWarning() << "Projection is not valid!";
       return;
     }
-    bool animationInProgress = inputHandler->animationInProgress();
-
-    painter->setRenderHint(QPainter::Antialiasing, !animationInProgress);
-    painter->setRenderHint(QPainter::TextAntialiasing, !animationInProgress);
-    painter->setRenderHint(QPainter::SmoothPixmapTransform, !animationInProgress);
+    bool renderingHQ = (renderingType == RenderingType::TiledRendering) ||
+                       !inputHandler->animationInProgress();
+    painter->setRenderHint(QPainter::Antialiasing, renderingHQ);
+    painter->setRenderHint(QPainter::TextAntialiasing, renderingHQ);
+    painter->setRenderHint(QPainter::SmoothPixmapTransform, renderingHQ);
 
     MapViewStruct request=GetViewStruct();
     QRectF boundingBox = contentsBoundingRect();
