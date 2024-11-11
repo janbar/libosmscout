@@ -28,6 +28,7 @@
 
 #include <QGuiApplication>
 #include <QScreen>
+#include <QtCore>
 
 namespace osmscout {
 TiledMapRenderer::TiledMapRenderer(QThread *thread,
@@ -422,9 +423,9 @@ void TiledMapRenderer::onLoadJobFinished(QMap<QString,QMap<osmscout::TileKey,osm
     tileDimension = 64 * (tileDimension >> 6);
     double finalDpi = (double(tileDimension) / double(OSMTile::osmTileOriginalWidth())) * OSMTile::tileDPI();
 
-    QImage canvas((double)width * tileDimension,
-                  (double)height * tileDimension,
-                  QImage::Format_ARGB32_Premultiplied); // TODO: verify best format with profiler (callgrind)
+    QImage canvas(width * tileDimension,
+                  height * tileDimension,
+                  QImage::Format_RGBA8888_Premultiplied);
 
     QColor transparent = QColor::fromRgbF(1, 1, 1, 0.0);
     canvas.fill(transparent);
