@@ -418,10 +418,12 @@ void TiledMapRenderer::onLoadJobFinished(QMap<QString,QMap<osmscout::TileKey,osm
             (double)loadXFrom + (double)width/2.0,
             (double)loadYFrom + (double)height/2.0);
 
-    double osmTileDimension = (double)OSMTile::osmTileOriginalWidth() * (mapDpi / OSMTile::tileDPI() ); // pixels
+    uint32_t tileDimension = double(OSMTile::osmTileOriginalWidth()) * (1.618 * mapDpi / OSMTile::tileDPI() ); // pixels
+    tileDimension = 64 * (tileDimension >> 6);
+    double finalDpi = (double(tileDimension) / double(OSMTile::osmTileOriginalWidth())) * OSMTile::tileDPI();
 
-    QImage canvas((double)width * osmTileDimension,
-                  (double)height * osmTileDimension,
+    QImage canvas((double)width * tileDimension,
+                  (double)height * tileDimension,
                   QImage::Format_ARGB32_Premultiplied); // TODO: verify best format with profiler (callgrind)
 
     QColor transparent = QColor::fromRgbF(1, 1, 1, 0.0);
@@ -468,7 +470,7 @@ void TiledMapRenderer::onLoadJobFinished(QMap<QString,QMap<osmscout::TileKey,osm
     osmscout::MercatorProjection projection;
     osmscout::Magnification magnification(loadZ);
 
-    projection.Set(tileVisualCenter, /* angle */ 0, magnification, mapDpi,
+    projection.Set(tileVisualCenter, /* angle */ 0, magnification, finalDpi,
                    canvas.width(), canvas.height());
     projection.SetLinearInterpolationUsage(loadZ.Get() >= 10);
 
@@ -519,9 +521,9 @@ void TiledMapRenderer::onLoadJobFinished(QMap<QString,QMap<osmscout::TileKey,osm
                 for (uint32_t x = loadXFrom; x <= loadXTo; ++x){
 
                     QImage tile = canvas.copy(
-                            (double)(x - loadXFrom) * osmTileDimension,
-                            (double)(y - loadYFrom) * osmTileDimension,
-                            osmTileDimension, osmTileDimension
+                            (x - loadXFrom) * tileDimension,
+                            (y - loadYFrom) * tileDimension,
+                            tileDimension, tileDimension
                             );
 
                     offlineTileCache.put(loadZ.Get(), x, y, tile, loadEpoch);
