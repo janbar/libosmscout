@@ -154,8 +154,15 @@ namespace osmscout {
     if (!ScanNumber(text,currentPos,value,maxDigits)){
       return false;
     }
-    if (currentPos+1<text.length() && (text[currentPos]==(char)248 || // ascii degree character "°"
-        (text[currentPos]==(char)0xc2 && text[currentPos+1]==(char)0xb0))) { // UTF8 sequence 0xc2b0: degree sign
+    // ascii degree character "°"
+    bool hasAsciiDegree=(currentPos<text.length() &&
+                         text[currentPos]==(char)248);
+    // UTF8 sequence 0xc2b0: degree sign
+    bool hasUtf8Degree=(currentPos+1<text.length() &&
+                        text[currentPos]==(char)0xc2 &&
+                        text[currentPos+1]==(char)0xb0);
+
+    if (hasAsciiDegree || hasUtf8Degree) { // degree sign
 
       if (text[currentPos]==(char)248) {
         currentPos += 1;
@@ -172,12 +179,31 @@ namespace osmscout {
       if (currentPos<text.length() &&
           text[currentPos]>='0' &&
           text[currentPos]<='9') {
-        double minutes;
-        if (!ScanNumber(text,currentPos,minutes,2)){
+        size_t minutesStart=currentPos;
+        size_t minutesEnd=currentPos;
+        double minutes=0.0;
+
+        if (!ScanNumber(text,minutesEnd,minutes,2)){
           return false;
         }
-        value+=(minutes/60.0);
-        if (currentPos<text.length() &&
+
+        size_t markerPos=EatWhitespace(text,minutesEnd);
+        bool nextTokenIsCoordinate=((markerPos<text.length() &&
+                                     text[markerPos]==(char)248) ||
+                                    (markerPos+1<text.length() &&
+                                     text[markerPos]==(char)0xc2 &&
+                                     text[markerPos+1]==(char)0xb0));
+
+        if (!nextTokenIsCoordinate) {
+          currentPos=minutesEnd;
+          value+=(minutes/60.0);
+        }
+        else {
+          currentPos=minutesStart;
+        }
+
+        if (!nextTokenIsCoordinate &&
+            currentPos<text.length() &&
             text[currentPos]=='\''){
           currentPos+=1;
 
