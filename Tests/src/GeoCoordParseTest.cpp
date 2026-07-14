@@ -101,6 +101,10 @@ TEST_CASE()
     REQUIRE(CheckParseSuccess("50°5'8.860\"N 14°24'37.592\"E", osmscout::GeoCoord(50.0857944, 14.4104422)));
     REQUIRE(CheckParseSuccess("N 50°5.14767' E 14°24.62653'", osmscout::GeoCoord(50.0857944, 14.4104422)));
 
+    // osmapp format
+    REQUIRE(CheckParseSuccess("50.02071° 14.57931°", osmscout::GeoCoord(50.02071, 14.57931)));
+    REQUIRE(CheckParseSuccess("50° 1.243' 14° 34.759'", osmscout::GeoCoord(50.0207167, 14.5793167)));
+
     // booking.com format
     REQUIRE(CheckParseSuccess("N 050° 5.14767, E 14° 24.62653", osmscout::GeoCoord(50.0857944, 14.4104422)));
 
